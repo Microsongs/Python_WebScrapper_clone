@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup
 LIMIT = 50
 URL = f"https://kr.indeed.com/%EC%B7%A8%EC%97%85?q=python&limit={LIMIT}"
 
-def extract_indeed_pages():
+def get_last_pages():
     # url을 get해옴
     result = requests.get(URL)
     # 링크의 text를 html로 파싱
@@ -32,12 +32,15 @@ def extract_job(html):
     # company중에 link가 없는 것도 있다. -> if else 사용
     company = html.find("span",{"class":"company"})
     company_anchor = company.find("a")
-    if company_anchor is not None:
-        company = str(company_anchor.string)
+    if company:
+        if company_anchor is not None:
+            company = str(company_anchor.string)
+        else:
+            company = str(company.string)
+        # strip으로 빈칸 제거
+        company = company.strip()
     else:
-        company = str(company.string)
-    # strip으로 빈칸 제거
-    company = company.strip()
+        company = None
     #location : 회사의 장소
     #location = html.find("span",{"class":"location"}).string
     location = html.find("div",{"class":"recJobLoc"})["data-rc-loc"]
@@ -50,10 +53,10 @@ def extract_job(html):
     }
 
 # 최대 페이지를 받아 받은만큼 reqeust하는 함수
-def extract_indeed_jobs(last_page):
+def extract_get_jobs(last_page):
     jobs = []
     for page in range(int(last_page)):
-        print(f"Scrapping page {page}")
+        print(f"Scrapping Indeed page: Page: {page}")
         result = requests.get(f"{URL}&start={page*LIMIT}")
         soup = BeautifulSoup(result.text,"html.parser")
         results = soup.find_all("div", {"class":"jobsearch-SerpJobCard"})
@@ -63,5 +66,7 @@ def extract_indeed_jobs(last_page):
             # job을 jobs 안에 삽입
     return jobs
 
-
-
+def get_jobs():
+    last_page = get_last_pages()
+    jobs = extract_get_jobs(last_page)
+    return jobs
