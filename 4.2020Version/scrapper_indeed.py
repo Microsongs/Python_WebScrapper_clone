@@ -66,7 +66,7 @@ def extract_get_jobs(last_page, url):
             # job을 jobs 안에 삽입
     return jobs
 
-def get_jobs(word):
+def get_jobs_indeed(word):
     url = f"https://kr.indeed.com/%EC%B7%A8%EC%97%85?q={word}&limit={LIMIT}"
     last_page = get_last_pages(url)
     jobs = extract_get_jobs(last_page, url)
